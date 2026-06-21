@@ -51,9 +51,15 @@ def likelihood(x, n, P):
                    if (n - x) > 0 else 0)
     log_n_choose_x = log_n_fact - log_x_fact - log_nx_fact
 
-    with np.errstate(divide='ignore'):
-        log_likelihoods = (
-            log_n_choose_x + x * np.log(P) + (n - x) * np.log(1 - P))
+    with np.errstate(divide='ignore', invalid='ignore'):
+        log_P = np.where(P > 0, np.log(P), 0.0)
+        log_1mP = np.where(P < 1, np.log(1 - P), 0.0)
+        log_likelihoods = log_n_choose_x + x * log_P + (n - x) * log_1mP
+
     likelihoods = np.exp(log_likelihoods)
+    likelihoods = np.where((x == 0) & (P == 0), 1.0, likelihoods)
+    likelihoods = np.where((x == n) & (P == 1), 1.0, likelihoods)
+    likelihoods = np.where((x > 0) & (P == 0), 0.0, likelihoods)
+    likelihoods = np.where((x < n) & (P == 1), 0.0, likelihoods)
 
     return likelihoods

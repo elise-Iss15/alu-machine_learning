@@ -114,3 +114,4 @@ def marginal(x, n, P, Pr):
     marginal_probability = np.sum(intersections)
 
     return marginal_probability
+
